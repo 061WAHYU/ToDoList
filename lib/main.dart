@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:todolist/screens/completed_tasks_screen.dart';
 import 'package:todolist/screens/home_screen.dart';
+import 'package:todolist/screens/login_screen.dart';
 import 'package:todolist/screens/ongoing_task.dart';
 
 void main() {
@@ -13,16 +14,25 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: const MyHomePage(title: 'ToDo List'),
+      home: LoginPage(),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  const MyHomePage({
+    super.key, 
+    required this.title, 
+    required this.username, 
+    required this.email, 
+    required this.profilePicUrl,
+  });
   final String title;
-
+  final String username;
+  final String email;
+  final String profilePicUrl;
+  
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
@@ -42,11 +52,11 @@ class _MyHomePageState extends State<MyHomePage> {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          const UserAccountsDrawerHeader(
-            accountName: Text("Nama Pengguna"),
-            accountEmail: Text("email@example.com"),
+          UserAccountsDrawerHeader(
+            accountName: Text(widget.username),
+            accountEmail: Text(widget.email),
             currentAccountPicture: CircleAvatar(
-              backgroundImage: NetworkImage("https://example.com/avatar.jpg"),
+              backgroundImage: NetworkImage(widget.profilePicUrl),
             ),
             decoration: BoxDecoration(
               color: Color.fromRGBO(96, 205, 255, 1),
@@ -83,7 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
               icon: Icons.logout,
               text: 'Logout',
               onTap: () {
-                Navigator.pop(context);
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
                 // Implementasikan fitur logout
               },
             ),

@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:todolist/database/database_helper.dart';// Import Database Helper
+import 'package:todolist/database/database_helper.dart'; // Import Database Helper
+import 'task_detail_page.dart'; // Import Task Detail Page
 
-class OngoingTaskPage extends StatelessWidget {
+class OngoingTaskPage extends StatefulWidget {
   const OngoingTaskPage({super.key});
 
+  @override
+  _OngoingTaskPageState createState() => _OngoingTaskPageState();
+}
+
+class _OngoingTaskPageState extends State<OngoingTaskPage> {
   Future<List<Map<String, dynamic>>> _fetchTasks() async {
     return await DatabaseHelper().getTasks();
   }
@@ -33,8 +39,14 @@ class OngoingTaskPage extends StatelessWidget {
                   title: Text(task['title']),
                   subtitle: Text(task['description']),
                   trailing: Text(task['priority']),
-                  onTap: () {
-                    // Aksi ketika item di-tap (opsional)
+                  onTap: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TaskDetailPage(task: task),
+                      ),
+                    );
+                    setState(() {}); // Refresh tasks list after returning
                   },
                 );
               },
