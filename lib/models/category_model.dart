@@ -18,6 +18,8 @@ class CategoryModel {
     required this.boxColor,
     required this.page, // Include target page in the constructor
   });
+  
+  static get task => null;
 
   // Convert CategoryModel to a map for database storage
   Map<String, dynamic> toMap() {
