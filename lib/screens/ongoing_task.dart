@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gami/models/task_model.dart';
+import 'package:todolist/models/task_model.dart';
 
 class OngoingTasksPage extends StatelessWidget {
   OngoingTasksPage({super.key});

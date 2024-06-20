@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gami/screens/completed_tasks_screen.dart';
-import 'package:gami/screens/home_screen.dart';
-import 'package:gami/screens/ongoing_task.dart';
-import 'package:gami/screens/settings_screen.dart';
+import 'package:todolist/screens/completed_tasks_screen.dart';
+import 'package:todolist/screens/home_screen.dart';
+import 'package:todolist/screens/ongoing_task.dart';
 
 void main() {
   runApp(const MyApp());

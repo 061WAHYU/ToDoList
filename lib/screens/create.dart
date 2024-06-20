@@ -1,71 +1,60 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(MyApp());
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: CreateTaskPage(),
-    );
-  }
-}
-
 class CreateTaskPage extends StatefulWidget {
+  CreateTaskPage({super.key});
+
   @override
-  _CreateTaskPageState createState() => _CreateTaskPageState();
+  State<CreateTaskPage> createState() => _CreateTaskPageState();
 }
 
 class _CreateTaskPageState extends State<CreateTaskPage> {
   final _formKey = GlobalKey<FormState>();
+
+  final TextEditingController _titleController = TextEditingController();
+
+  final TextEditingController _descriptionController = TextEditingController();
+
   DateTime? _selectedDate;
+
   TimeOfDay? _selectedTime;
+
   String _priority = 'Medium';
+
   String _category = 'Work';
+
   bool _reminder = false;
 
-  List<String> _priorities = ['High', 'Medium', 'Low'];
-  List<String> _categories = ['Work', 'Personal', 'Others'];
+  final List<String> _priorities = ['High', 'Medium', 'Low'];
 
-  void _pickDate() async {
+  final List<String> _categories = ['Work', 'Personal', 'Others'];
+
+  Future<void> _pickDate(BuildContext context, ValueSetter<DateTime?> onDatePicked) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
-    if (pickedDate != null) {
-      setState(() {
-        _selectedDate = pickedDate;
-      });
-    }
+    onDatePicked(pickedDate);
   }
 
-  void _pickTime() async {
+  Future<void> _pickTime(BuildContext context, ValueSetter<TimeOfDay?> onTimePicked) async {
     TimeOfDay? pickedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
     );
-    if (pickedTime != null) {
-      setState(() {
-        _selectedTime = pickedTime;
-      });
-    }
+    onTimePicked(pickedTime);
   }
 
-  void _saveTask() {
+  void _saveTask(BuildContext context) {
     if (_formKey.currentState!.validate()) {
-      // Simpan tugas
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Task saved successfully')),
+        const SnackBar(content: Text('Task saved successfully')),
       );
       _formKey.currentState!.reset();
-      setState(() {
-        _selectedDate = null;
-        _selectedTime = null;
-      });
+      _titleController.clear();
+      _descriptionController.clear();
+      // Reset other state variables if needed
     }
   }
 
@@ -73,127 +62,140 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create Task'),
+        title: const Text('Create Task'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: <Widget>[
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Task Title'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a task title';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  // Simpan judul tugas
-                },
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Description'),
-                onSaved: (value) {
-                  // Simpan deskripsi tugas
-                },
-              ),
-              Row(
+      body: StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) {
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: ListView(
                 children: <Widget>[
-                  Expanded(
-                    child: ListTile(
-                      title: Text(
-                        _selectedDate == null
-                            ? 'No date chosen'
-                            : '${_selectedDate!.toLocal()}'.split(' ')[0],
-                      ),
-                      trailing: Icon(Icons.calendar_today),
-                      onTap: _pickDate,
-                    ),
+                  TextFormField(
+                    controller: _titleController,
+                    decoration: const InputDecoration(labelText: 'Task Title'),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a task title';
+                      }
+                      return null;
+                    },
                   ),
-                  Expanded(
-                    child: ListTile(
-                      title: Text(
-                        _selectedTime == null
-                            ? 'No time chosen'
-                            : _selectedTime!.format(context),
+                  TextFormField(
+                    controller: _descriptionController,
+                    decoration: const InputDecoration(labelText: 'Description'),
+                  ),
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: ListTile(
+                          title: Text(
+                            _selectedDate == null
+                                ? 'No date chosen'
+                                : '${_selectedDate!.toLocal()}'.split(' ')[0],
+                          ),
+                          trailing: const Icon(Icons.calendar_today),
+                          onTap: () => _pickDate(context, (pickedDate) {
+                            setState(() {
+                              _selectedDate = pickedDate;
+                            });
+                          }),
+                        ),
                       ),
-                      trailing: Icon(Icons.access_time),
-                      onTap: _pickTime,
-                    ),
+                      Expanded(
+                        child: ListTile(
+                          title: Text(
+                            _selectedTime == null
+                                ? 'No time chosen'
+                                : _selectedTime!.format(context),
+                          ),
+                          trailing: const Icon(Icons.access_time),
+                          onTap: () => _pickTime(context, (pickedTime) {
+                            setState(() {
+                              _selectedTime = pickedTime;
+                            });
+                          }),
+                        ),
+                      ),
+                    ],
+                  ),
+                  DropdownButtonFormField<String>(
+                    value: _priority,
+                    decoration: const InputDecoration(labelText: 'Priority'),
+                    items: _priorities.map((priority) {
+                      return DropdownMenuItem(
+                        value: priority,
+                        child: Text(priority),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _priority = value!;
+                      });
+                    },
+                  ),
+                  DropdownButtonFormField<String>(
+                    value: _category,
+                    decoration: const InputDecoration(labelText: 'Category'),
+                    items: _categories.map((category) {
+                      return DropdownMenuItem(
+                        value: category,
+                        child: Text(category),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _category = value!;
+                      });
+                    },
+                  ),
+                  SwitchListTile(
+                    title: const Text('Reminder'),
+                    value: _reminder,
+                    onChanged: (value) {
+                      setState(() {
+                        _reminder = value;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () => _saveTask(context),
+                          child: const Text('Save'),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            _formKey.currentState?.reset();
+                            setState(() {
+                              _selectedDate = null;
+                              _selectedTime = null;
+                              _priority = 'Medium';
+                              _category = 'Work';
+                              _reminder = false;
+                            });
+                            _titleController.clear();
+                            _descriptionController.clear();
+                          },
+                          child: const Text('Reset'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.grey,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              DropdownButtonFormField(
-                value: _priority,
-                decoration: InputDecoration(labelText: 'Priority'),
-                items: _priorities.map((priority) {
-                  return DropdownMenuItem(
-                    value: priority,
-                    child: Text(priority),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _priority = value!;
-                  });
-                },
-              ),
-              DropdownButtonFormField(
-                value: _category,
-                decoration: InputDecoration(labelText: 'Category'),
-                items: _categories.map((category) {
-                  return DropdownMenuItem(
-                    value: category,
-                    child: Text(category),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _category = value!;
-                  });
-                },
-              ),
-              SwitchListTile(
-                title: Text('Reminder'),
-                value: _reminder,
-                onChanged: (value) {
-                  setState(() {
-                    _reminder = value;
-                  });
-                },
-              ),
-              SizedBox(height: 20),
-              Row(
-                children: <Widget>[
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _saveTask,
-                      child: Text('Save'),
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        _formKey.currentState?.reset();
-                        setState(() {
-                          _selectedDate = null;
-                          _selectedTime = null;
-                        });
-                      },
-                      child: Text('Reset'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }

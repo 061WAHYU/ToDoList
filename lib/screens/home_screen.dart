@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:gami/models/category_model.dart';
+import 'package:todolist/models/category_model.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   List<CategoryModel> categories = [];
 
   DateTime today = DateTime.now();
@@ -23,7 +28,7 @@ class HomeScreen extends StatelessWidget {
         children: [
           _searchField(),
           SizedBox(height: 40),
-          _categoriesSection(),
+          _categoriesSection(context),
           _dateSection()
         ],
       ),
@@ -57,7 +62,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Column _categoriesSection() {
+  Column _categoriesSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -78,36 +83,44 @@ class HomeScreen extends StatelessWidget {
             padding: EdgeInsets.only(left: 20, right: 20),
             separatorBuilder: (context, index) => SizedBox(width: 25),
             itemBuilder: (context, index) {
-              return Container(
-                width: 100,
-                decoration: BoxDecoration(
-                  color: categories[index].boxColor.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                          color: Colors.white, shape: BoxShape.circle),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SvgPicture.asset(categories[index].iconPath),
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => categories[index].Page),
+                  );
+                },
+                child: Container(
+                  width: 100,
+                  decoration: BoxDecoration(
+                    color: categories[index].boxColor.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                            color: Colors.white, shape: BoxShape.circle),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SvgPicture.asset(categories[index].iconPath),
+                        ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: Text(
-                        categories[index].name,
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                            fontSize: 14),
-                      ),
-                    )
-                  ],
+                      Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Text(
+                          categories[index].name,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                              fontSize: 14),
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               );
             },
