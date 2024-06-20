@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gami/screens/completed_tasks_screen.dart';
 import 'package:gami/screens/home_screen.dart';
 import 'package:gami/screens/ongoing_task.dart';
+import 'package:gami/screens/settings_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -72,49 +74,10 @@ class _MyHomePageState extends State<MyHomePage> {
               icon: Icons.check_circle,
               text: 'Tugas Selesai',
               onTap: () {
-                Navigator.pop(context);
+                Navigator.push(context,
+                MaterialPageRoute(builder: (context) => CompletedTasksPage())
+                );
                 // Navigasi ke halaman Tugas Selesai
-              },
-            ),
-            _createDrawerItem(
-              icon: Icons.category,
-              text: 'Kategori',
-              onTap: () {
-                Navigator.pop(context);
-                // Navigasi ke halaman Kategori
-              },
-            ),
-            Divider(),
-            _createDrawerItem(
-              icon: Icons.settings,
-              text: 'Pengaturan',
-              onTap: () {
-                Navigator.pop(context);
-                // Navigasi ke halaman Pengaturan
-              },
-            ),
-            _createDrawerItem(
-              icon: Icons.info,
-              text: 'Tentang Aplikasi',
-              onTap: () {
-                Navigator.pop(context);
-                // Navigasi ke halaman Tentang
-              },
-            ),
-            _createDrawerItem(
-              icon: Icons.help,
-              text: 'Bantuan',
-              onTap: () {
-                Navigator.pop(context);
-                // Navigasi ke halaman Bantuan
-              },
-            ),
-            _createDrawerItem(
-              icon: Icons.feedback,
-              text: 'Saran/Feedback',
-              onTap: () {
-                Navigator.pop(context);
-                // Navigasi ke halaman Feedback
               },
             ),
             _createDrawerItem(
