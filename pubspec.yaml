@@ -1,4 +1,4 @@
-name: gami
+name: todolist
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -33,6 +33,7 @@ dependencies:
   provider: ^6.0.0 # untuk state management
   flutter_markdown: ^0.6.4 # untuk menampilkan instruksi dari file markdown
   url_launcher: ^6.0.20 # untuk membuka link eksternal (misalnya, video tutorial)
+  sqflite: ^2.0.3
 
 
   # The following adds the Cupertino Icons font to your application.
