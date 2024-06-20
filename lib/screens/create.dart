@@ -1,34 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:todolist/database/database_helper.dart'; // Import Database Helper
+import 'ongoing_task.dart'; // Import Ongoing Task Page
 
-class CreateTaskPage extends StatefulWidget {
+class CreateTaskPage extends StatelessWidget {
   CreateTaskPage({super.key});
 
-  @override
-  State<CreateTaskPage> createState() => _CreateTaskPageState();
-}
-
-class _CreateTaskPageState extends State<CreateTaskPage> {
   final _formKey = GlobalKey<FormState>();
-
   final TextEditingController _titleController = TextEditingController();
-
   final TextEditingController _descriptionController = TextEditingController();
 
   DateTime? _selectedDate;
-
   TimeOfDay? _selectedTime;
-
   String _priority = 'Medium';
-
   String _category = 'Work';
-
   bool _reminder = false;
 
   final List<String> _priorities = ['High', 'Medium', 'Low'];
-
   final List<String> _categories = ['Work', 'Personal', 'Others'];
 
-  Future<void> _pickDate(BuildContext context, ValueSetter<DateTime?> onDatePicked) async {
+  Future<void> _pickDate(
+      BuildContext context, ValueSetter<DateTime?> onDatePicked) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -38,7 +30,8 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
     onDatePicked(pickedDate);
   }
 
-  Future<void> _pickTime(BuildContext context, ValueSetter<TimeOfDay?> onTimePicked) async {
+  Future<void> _pickTime(
+      BuildContext context, ValueSetter<TimeOfDay?> onTimePicked) async {
     TimeOfDay? pickedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
@@ -46,15 +39,46 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
     onTimePicked(pickedTime);
   }
 
-  void _saveTask(BuildContext context) {
+  void _saveTask(BuildContext context, StateSetter setState) async {
     if (_formKey.currentState!.validate()) {
+      String formattedDate = _selectedDate != null
+          ? DateFormat('yyyy-MM-dd').format(_selectedDate!)
+          : '';
+      String formattedTime =
+          _selectedTime != null ? _selectedTime!.format(context) : '';
+
+      Map<String, dynamic> task = {
+        'title': _titleController.text,
+        'description': _descriptionController.text,
+        'date': formattedDate,
+        'time': formattedTime,
+        'priority': _priority,
+        'category': _category,
+        'reminder': _reminder ? 1 : 0,
+      };
+
+      await DatabaseHelper().insertTask(task);
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Task saved successfully')),
       );
+
       _formKey.currentState!.reset();
       _titleController.clear();
       _descriptionController.clear();
-      // Reset other state variables if needed
+
+      setState(() {
+        _selectedDate = null;
+        _selectedTime = null;
+        _priority = 'Medium';
+        _category = 'Work';
+        _reminder = false;
+      });
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const OngoingTaskPage()),
+      );
     }
   }
 
@@ -164,7 +188,7 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                     children: <Widget>[
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () => _saveTask(context),
+                          onPressed: () => _saveTask(context, setState),
                           child: const Text('Save'),
                         ),
                       ),
@@ -173,6 +197,8 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                         child: ElevatedButton(
                           onPressed: () {
                             _formKey.currentState?.reset();
+                            _titleController.clear();
+                            _descriptionController.clear();
                             setState(() {
                               _selectedDate = null;
                               _selectedTime = null;
@@ -180,13 +206,11 @@ class _CreateTaskPageState extends State<CreateTaskPage> {
                               _category = 'Work';
                               _reminder = false;
                             });
-                            _titleController.clear();
-                            _descriptionController.clear();
                           },
-                          child: const Text('Reset'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.grey,
                           ),
+                          child: const Text('Reset'),
                         ),
                       ),
                     ],
