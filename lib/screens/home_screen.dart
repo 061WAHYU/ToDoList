@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:todolist/database/database_helper.dart';
 import 'package:todolist/models/category_model.dart';
+import 'package:todolist/screens/task_detail_page.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
@@ -12,11 +14,39 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<CategoryModel> categories = [];
+  late Stream<List<Map<String, dynamic>>> _tasksStream;
+  Map<DateTime, List<dynamic>> _events = {};
 
   DateTime today = DateTime.now();
 
   void _getCategories() {
     categories = CategoryModel.getCategories();
+  }
+
+  Stream<List<Map<String, dynamic>>> _fetchTasksStream() async* {
+    while (true) {
+      await Future.delayed(Duration(seconds: 1));
+      List<Map<String, dynamic>> tasks = await DatabaseHelper().getTasks();
+      _generateEvents(tasks);
+      yield tasks;
+    }
+  }
+
+  void _generateEvents(List<Map<String, dynamic>> tasks) {
+    _events.clear();
+    for (var task in tasks) {
+      DateTime taskDate = DateTime.parse(task['date']); // Asumsikan tugas memiliki field 'date' dalam format yyyy-MM-dd
+      if (_events[taskDate] == null) {
+        _events[taskDate] = [];
+      }
+      _events[taskDate]?.add(task);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _tasksStream = _fetchTasksStream();
   }
 
   @override
@@ -29,7 +59,8 @@ class _HomeScreenState extends State<HomeScreen> {
           _searchField(),
           SizedBox(height: 40),
           _categoriesSection(context),
-          _dateSection()
+          _dateSection(),
+          _ongoingTasksSection(),
         ],
       ),
     );
@@ -156,10 +187,85 @@ class _HomeScreenState extends State<HomeScreen> {
               focusedDay: today,
               firstDay: DateTime(2010, 10, 16),
               lastDay: DateTime(2030, 10, 16),
+              eventLoader: (day) {
+                return _events[day] ?? [];
+              },
             ),
           ),
         )
       ],
     );
   }
+  Widget _ongoingTasksSection() {
+    return StreamBuilder<List<Map<String, dynamic>>>(
+      stream: _tasksStream,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return const Center(child: Text('Error loading tasks'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text('No ongoing tasks'));
+        } else {
+          List<Map<String, dynamic>> tasks = snapshot.data!;
+          return ListView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemCount: tasks.length,
+            itemBuilder: (context, index) {
+              final task = tasks[index];
+              return Card(
+                margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                elevation: 5,
+                child: ListTile(
+                  contentPadding: EdgeInsets.all(15),
+                  title: Text(
+                    task['title'],
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 5),
+                      Text(task['description']),
+                      SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Icon(Icons.priority_high, size: 16, color: Colors.red),
+                          SizedBox(width: 5),
+                          Text(
+                            task['priority'],
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  trailing: Icon(Icons.chevron_right),
+                  onTap: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TaskDetailPage(task: task),
+                      ),
+                    );
+                    setState(() {
+                      _tasksStream = _fetchTasksStream(); // Refresh daftar tugas setelah kembali
+                    });
+                  },
+                ),
+              );
+            },
+          );
+        }
+      },
+    );
+  }
 }
+
