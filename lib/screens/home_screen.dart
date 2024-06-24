@@ -53,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
             hintStyle: TextStyle(color: Color(0xffDDDADA), fontSize: 14),
             prefixIcon: Padding(
               padding: const EdgeInsets.all(16),
-              child: SvgPicture.asset('assets/icon/ss.svg'),
+              child: SvgPicture.asset('assets/icon/search.svg'),
             ),
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(15),
@@ -100,8 +100,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        width: 50,
-                        height: 50,
+                        width: 100,
+                        height: 100,
                         decoration: BoxDecoration(
                             color: Colors.white, shape: BoxShape.circle),
                         child: Padding(

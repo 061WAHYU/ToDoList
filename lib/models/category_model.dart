@@ -61,19 +61,19 @@ class CategoryModel {
     return [
       CategoryModel(
         name: 'Create',
-        iconPath: 'assets/icon/cccc.svg',
+        iconPath: 'assets/icon/create.svg',
         boxColor: const Color(0xff92A3FD),
         page: CreateTaskPage(), // Target page for the category
       ),
       CategoryModel(
         name: 'Open',
-        iconPath: 'assets/icon/oo.svg',
+        iconPath: 'assets/icon/open.svg',
         boxColor: const Color(0xff92A3FD),
         page: OngoingTaskPage(), // Target page for the category
       ),
       CategoryModel(
         name: 'Category',
-        iconPath: 'assets/icon/ccc.svg',
+        iconPath: 'assets/icon/category.svg',
         boxColor: const Color(0xff92A3FD),
         page: CategoryPage(), // Target page for the category
       ),
