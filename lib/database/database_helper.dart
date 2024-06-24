@@ -1,20 +1,20 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:flutter/material.dart';  // Needed for the Color class
+import 'package:todolist/models/user.dart';
 import 'package:todolist/models/category_model.dart';
 
 class DatabaseHelper {
   // Singleton instance
   static final DatabaseHelper _instance = DatabaseHelper._internal();
+  static Database? _database;
 
   // Private constructor
   DatabaseHelper._internal();
 
   // Factory constructor to return the singleton instance
-  factory DatabaseHelper() => _instance;
-
-  // Database object
-  Database? _database;
+  factory DatabaseHelper() {
+    return _instance;
+  }
 
   // Getter to return the database, creating it if it doesn't exist
   Future<Database> get database async {
@@ -25,7 +25,7 @@ class DatabaseHelper {
 
   // Initialize the database
   Future<Database> _initDatabase() async {
-    String path = join(await getDatabasesPath(), 'app_database.db');
+    String path = join(await getDatabasesPath(), 'login_database.db');
     return await openDatabase(
       path,
       version: 1,
@@ -53,6 +53,14 @@ class DatabaseHelper {
         name TEXT,
         iconPath TEXT,
         boxColor INTEGER
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL,
+        email TEXT NOT NULL,
+        password TEXT NOT NULL
       )
     ''');
   }
@@ -83,7 +91,7 @@ class DatabaseHelper {
     return await db.delete('categories', where: 'id = ?', whereArgs: [id]);
   }
 
-  // Task CRUD operations remain unchanged
+  // Task CRUD operations
   Future<int> insertTask(Map<String, dynamic> task) async {
     Database db = await database;
     return await db.insert('tasks', task);
@@ -102,5 +110,24 @@ class DatabaseHelper {
   Future<int> updateTask(Map<String, dynamic> task) async {
     Database db = await database;
     return await db.update('tasks', task, where: 'id = ?', whereArgs: [task['id']]);
+  }
+
+  // User CRUD operations
+  Future<int> insertUser(User user) async {
+    Database db = await database;
+    return await db.insert('users', user.toMap());
+  }
+
+  Future<User?> getUser(String username, String password) async {
+    Database db = await database;
+    List<Map<String, dynamic>> maps = await db.query(
+      'users',
+      where: 'username = ? AND password = ?',
+      whereArgs: [username, password],
+    );
+    if (maps.isNotEmpty) {
+      return User.fromMap(maps.first);
+    }
+    return null;
   }
 }

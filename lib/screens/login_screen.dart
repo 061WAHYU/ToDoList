@@ -1,35 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:todolist/main.dart'; // Import the main.dart file where MyHomePage is defined
+import 'package:todolist/database/database_helper.dart';
+import 'package:todolist/models/user.dart';
+import 'package:todolist/main.dart';
+import 'register_screen.dart'; // Impor halaman register
 
-class LoginPage extends StatefulWidget {
+class LoginScreen extends StatefulWidget {
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _LoginScreenState createState() => _LoginScreenState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  final _formKey = GlobalKey<FormState>();
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+class _LoginScreenState extends State<LoginScreen> {
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
 
-  void _login() {
-    if (_formKey.currentState!.validate()) {
-      // Perform login logic
-      // Assume we get user information after successful login
-      final String username = _usernameController.text;
-      final String email = _emailController.text;
-      final String profilePicUrl = "https://example.com/avatar.jpg";
-
+  Future<void> _login() async {
+    String username = _usernameController.text;
+    String password = _passwordController.text;
+    User? user = await DatabaseHelper().getUser(username, password);
+    if (user != null) {
+      // Login berhasil
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => MyHomePage(
             title: 'ToDo List',
-            username: username,
-            email: email,
-            profilePicUrl: profilePicUrl,
+            user: user,
           ),
         ),
+      );
+    } else {
+      // Login gagal
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Invalid username or password')),
       );
     }
   }
@@ -37,107 +39,101 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Login',
-          style: TextStyle(
-            fontSize: 30,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Card(
-            elevation: 8,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+      body: SingleChildScrollView(
+        child: Container(
+          height: MediaQuery.of(context).size.height,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.deepPurple, Colors.deepPurpleAccent],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
             ),
+          ),
+          child: Center(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text.rich(
-                      TextSpan(
-                        text: 'Welcome to ',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                        children: <TextSpan>[
-                          TextSpan(
-                            text: 'ToDo',
-                            style: TextStyle(color: Colors.black),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text(
+                    'Welcome Back!',
+                    style: TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: 30),
+                  Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    elevation: 10,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Text(
+                            'Login',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.deepPurple,
+                            ),
                           ),
-                          TextSpan(
-                            text: 'List',
-                            style: TextStyle(color: Color.fromRGBO(96, 205, 255, 1)),
+                          SizedBox(height: 20),
+                          TextField(
+                            controller: _usernameController,
+                            decoration: InputDecoration(
+                              labelText: 'Username',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              prefixIcon: Icon(Icons.person),
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                          TextField(
+                            controller: _passwordController,
+                            decoration: InputDecoration(
+                              labelText: 'Password',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              prefixIcon: Icon(Icons.lock),
+                            ),
+                            obscureText: true,
+                          ),
+                          SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: _login,
+                            style: ElevatedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ), backgroundColor: Colors.deepPurple,
+                              padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15), // Background color
+                            ),
+                            child: Text(
+                              'Login',
+                              style: TextStyle(fontSize: 16, color: Colors.white),
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => RegisterScreen()),
+                              );
+                            },
+                            child: Text('Register'),
                           ),
                         ],
                       ),
                     ),
-                    SizedBox(height: 20),
-                    TextFormField(
-                      controller: _usernameController,
-                      decoration: InputDecoration(
-                        labelText: 'Username',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your username';
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 20),
-                    TextFormField(
-                      controller: _emailController,
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 20),
-                    TextFormField(
-                      controller: _passwordController,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        border: OutlineInputBorder(),
-                      ),
-                      obscureText: true,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your password';
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: _login,
-                      child: Text('Login'),
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),

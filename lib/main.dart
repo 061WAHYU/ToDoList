@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:todolist/models/user.dart';
 import 'package:todolist/screens/completed_tasks_screen.dart';
 import 'package:todolist/screens/home_screen.dart';
 import 'package:todolist/screens/login_screen.dart';
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: HomeScreen(),
+      home: LoginScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -24,15 +25,11 @@ class MyHomePage extends StatefulWidget {
   const MyHomePage({
     super.key, 
     required this.title, 
-    required this.username, 
-    required this.email, 
-    required this.profilePicUrl,
+    required this.user, // Menggunakan objek User
   });
   final String title;
-  final String username;
-  final String email;
-  final String profilePicUrl;
-  
+  final User user; // Menggunakan objek User
+
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
@@ -53,10 +50,10 @@ class _MyHomePageState extends State<MyHomePage> {
         padding: EdgeInsets.zero,
         children: [
           UserAccountsDrawerHeader(
-            accountName: Text(widget.username),
-            accountEmail: Text(widget.email),
+            accountName: Text(widget.user.username), // Menggunakan username dari objek User
+            accountEmail: Text(widget.user.email), // Menggunakan email dari objek User
             currentAccountPicture: CircleAvatar(
-              backgroundImage: NetworkImage(widget.profilePicUrl),
+              backgroundImage: NetworkImage('') 
             ),
             decoration: BoxDecoration(
               color: Color.fromRGBO(96, 205, 255, 1),
@@ -80,23 +77,21 @@ class _MyHomePageState extends State<MyHomePage> {
             },
           ),
           _createDrawerItem(
-              icon: Icons.check_circle,
-              text: 'Tugas Selesai',
-              onTap: () {
-                Navigator.push(context,
+            icon: Icons.check_circle,
+            text: 'Tugas Selesai',
+            onTap: () {
+              Navigator.push(context,
                 MaterialPageRoute(builder: (context) => CompletedTasksPage())
-                );
-                // Navigasi ke halaman Tugas Selesai
-              },
-            ),
-            _createDrawerItem(
-              icon: Icons.logout,
-              text: 'Logout',
-              onTap: () {
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
-                // Implementasikan fitur logout
-              },
-            ),
+              );
+            },
+          ),
+          _createDrawerItem(
+            icon: Icons.logout,
+            text: 'Logout',
+            onTap: () {
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+            },
+          ),
         ],
       ),
     );
