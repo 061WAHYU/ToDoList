@@ -83,7 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           SizedBox(height: 20),
-                          TextField(
+                          TextFormField(
                             controller: _usernameController,
                             decoration: InputDecoration(
                               labelText: 'Username',
@@ -92,9 +92,15 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               prefixIcon: Icon(Icons.person),
                             ),
+                            validator: (value) {
+                              if (value!.isEmpty) {
+                                return 'Please enter a username';
+                              }
+                              return null;
+                            },
                           ),
                           SizedBox(height: 20),
-                          TextField(
+                          TextFormField(
                             controller: _passwordController,
                             decoration: InputDecoration(
                               labelText: 'Password',
@@ -103,6 +109,12 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               prefixIcon: Icon(Icons.lock),
                             ),
+                            validator: (value) {
+                              if (value!.isEmpty) {
+                                return 'Please enter a username';
+                              }
+                              return null;
+                            },
                             obscureText: true,
                           ),
                           SizedBox(height: 20),
