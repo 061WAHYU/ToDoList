@@ -55,14 +55,28 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Text(
-                    'Welcome Back!',
-                    style: TextStyle(
-                      fontSize: 36,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                  RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'Welcome to Hippo',
+                        style: TextStyle(
+                          fontSize: 36,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      TextSpan(
+                        text: 'List',
+                        style: TextStyle(
+                          fontSize: 36,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromRGBO(96, 205, 255, 1,),
+                        ),
+                      ),
+                    ],
                   ),
+                ),
                   SizedBox(height: 30),
                   Card(
                     shape: RoundedRectangleBorder(

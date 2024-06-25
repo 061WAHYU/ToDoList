@@ -103,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
         text: const TextSpan(
           children: <TextSpan>[
             TextSpan(
-              text: 'ToDo',
+              text: 'Hippo',
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 24,
